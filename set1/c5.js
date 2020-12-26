@@ -23,3 +23,16 @@ console.log(
     ).toString("hex") == answer)
 );
 
+function decryptRepeatingKeyXor(key, message) {
+  results = [];
+  var inputBuffer = Buffer.from(message, "hex");
+
+  for (i = 0; i < inputBuffer.length; i++) {
+    var index = i % key.length;
+    results.push(inputBuffer[i] ^ key.charCodeAt(index));
+  }
+
+  return Buffer.from(results);
+}
+
+console.log(decryptRepeatingKeyXor("ICE", answer).toString());
