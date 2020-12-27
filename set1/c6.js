@@ -1,6 +1,9 @@
 let utility = require("../Utility");
 let input = utility.loadString("./set1/c6InputCustom.txt");
 let inputBuffer = Buffer.from(input, "base64");
+
+// Write a function to compute the edit distance/Hamming distance between two strings.
+// The Hamming distance is just the number of differing bits.
 function editDistance(bufferOne, bufferTwo) {
   let results = [];
   for (let i = 0; i < bufferOne.length; i++) {
@@ -14,9 +17,13 @@ function editDistance(bufferOne, bufferTwo) {
   }
   return total;
 }
-
-//confirm edit distance calculation working
-//console.log(editDistance(Buffer.from("this is a test"), Buffer.from("wokka wokka!!!") ));
+// Confirm working
+// console.log(
+//   editDistance(
+//     Buffer.from("this is a test"), 
+//     Buffer.from("wokka wokka!!!")
+//   ) === 37
+// );
 
 function getNormalizedEditDistanceForKeySize(keySize, input) {
   let iterations = 0;
@@ -25,7 +32,7 @@ function getNormalizedEditDistanceForKeySize(keySize, input) {
   while (true) {
     let firstBytes = [];
     let secondBytes = [];
-    
+
     for (
       let i = iterations * keySize * 2;
       i < keySize + iterations * keySize * 2;
@@ -35,73 +42,65 @@ function getNormalizedEditDistanceForKeySize(keySize, input) {
       secondBytes.push(input[i + keySize]);
     }
 
-    if(iterations * keySize * 2 > input.length - keySize * 2) {
+    if (iterations * keySize * 2 > input.length - keySize * 2) {
       break;
-    } 
+    }
 
     let editDistanceValue = editDistance(
       Buffer.from(firstBytes),
       Buffer.from(secondBytes)
     );
-    editDistances.push(editDistanceValue  / keySize);
+    editDistances.push(editDistanceValue / keySize);
     iterations++;
   }
 
   const sum = editDistances.reduce((a, b) => a + b, 0);
   const avg = sum / editDistances.length;
-  return( {
+  return {
     keySize: keySize,
-    editDistance: avg}
-  );
+    editDistance: avg,
+  };
 }
 
-// Now that you probably know the KEYSIZE: 
-// break the ciphertext into blocks of KEYSIZE length.
+function getTopThreeKeySizes(input, maxKeySizeLength) {
+  let editDistancesForKeySize = [];
+  for (let i = 1; i < maxKeySizeLength + 1; i++) {
+    editDistancesForKeySize.push(getNormalizedEditDistanceForKeySize(i, input));
+  }
+  return editDistancesForKeySize.sort(function (a, b) {
+    return a.editDistance - b.editDistance;
+  });
+}
+
 function getKeySizeLengthBlocks(input, keySize) {
   let blocks = [];
-  for(let i = 0; i < input.length / keySize; i++) {
+  for (let i = 0; i < input.length / keySize; i++) {
     let block = [];
-    
-    for(let j = 0; j < keySize; j++) {
-      
-      block.push(input[i*keySize + j]);
+
+    for (let j = 0; j < keySize; j++) {
+      block.push(input[i * keySize + j]);
     }
     blocks.push(block);
   }
   return blocks;
 }
 
-//Now transpose the blocks: make a block that is the first byte of every block, 
-//and a block that is the second byte of every block, and so on.
 function transposeBlocks(blocks) {
   let transposedBlocks = [];
-  for(let i = 0; i < blocks[0].length; i++) {
+  for (let i = 0; i < blocks[0].length; i++) {
     let newBlock = [];
-    for(let j = 0; j < blocks.length; j++) {
-      if(blocks[j][i]) {
-        newBlock.push(blocks[j][i])
+    for (let j = 0; j < blocks.length; j++) {
+      if (blocks[j][i]) {
+        newBlock.push(blocks[j][i]);
       }
     }
-    transposedBlocks.push(newBlock)
+    transposedBlocks.push(newBlock);
   }
   return transposedBlocks;
 }
 
-let editDistancesForKeySize = []
-for (let i = 1; i < 41; i++) {
- editDistancesForKeySize.push(getNormalizedEditDistanceForKeySize(i, inputBuffer));
-}
-//sort by edit distance
-editDistancesForKeySize = editDistancesForKeySize.sort(function(a, b){return a.editDistance - b.editDistance});
-
-let keySizeBlocks = getKeySizeLengthBlocks(inputBuffer, editDistancesForKeySize[0].keySize);
-let transposedBlocks = transposeBlocks(keySizeBlocks);
-
-// console.log(keySizeBlocks[0])
-// console.log(transposedBlocks[0]);
-
 function getSingleByteXORKey(input) {
-  scores = []
+  scores = [];
   var inputBuffer = Buffer.from(input, "hex");
 
   for (var i = 0; i < 128; i++) {
@@ -111,16 +110,13 @@ function getSingleByteXORKey(input) {
     }
     scores.push({
       character: String.fromCharCode(i),
-      score: utility.scoreString(Buffer.from(results).toString(), 50)
+      score: utility.scoreString(Buffer.from(results).toString(), 50),
     });
   }
-  scores = scores.sort(function(a, b){return b.score - a.score});
+  scores = scores.sort(function (a, b) {
+    return b.score - a.score;
+  });
   return scores[0];
-}
-
-let key = "";
-for(let i = 0; i < transposedBlocks.length; i++) {
-  key += getSingleByteXORKey(transposedBlocks[i]).character;
 }
 
 function decryptRepeatingKeyXor(key, message) {
@@ -131,10 +127,34 @@ function decryptRepeatingKeyXor(key, message) {
     var index = i % key.length;
     results.push(inputBuffer[i] ^ key.charCodeAt(index));
   }
-
   return Buffer.from(results);
 }
 
-console.log("key : " + key + "\n");
-console.log("message: \n")
+// For each KEYSIZE, take the first KEYSIZE worth of bytes,
+// and the second KEYSIZE worth of bytes, and find the edit distance between them.
+// Normalize this result by dividing by KEYSIZE.
+// The KEYSIZE with the smallest normalized edit distance is probably the key.
+// You could proceed perhaps with the smallest 2-3 KEYSIZE values.
+// Or take 4 KEYSIZE blocks instead of 2 and average the distances
+let editDistancesForKeySize = getTopThreeKeySizes(inputBuffer, 40);
+
+// Now that you probably know the KEYSIZE:
+// break the ciphertext into blocks of KEYSIZE length.
+// Now transpose the blocks: make a block that is the first byte of every block,
+// and a block that is the second byte of every block, and so on.
+let transposedBlocks = transposeBlocks(
+  getKeySizeLengthBlocks(inputBuffer, editDistancesForKeySize[0].keySize)
+);
+
+// Solve each block as if it was single-character XOR.
+// You already have code to do this.
+// For each block, the single-byte XOR key that produces
+// the best looking histogram is the repeating-key XOR key byte for that block.
+// Put them together and you have the key.
+let key = transposedBlocks.reduce((accumulator, currentValue) => {
+  return (accumulator += getSingleByteXORKey(currentValue).character);
+}, "");
+
+console.log("key: " + key + "\n");
+console.log("message:");
 console.log(decryptRepeatingKeyXor(key, inputBuffer).toString());
