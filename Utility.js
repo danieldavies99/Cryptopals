@@ -7,7 +7,7 @@ function loadArray(path) {
 }
 
 function loadString(path) {
-  return fs.readFileSync(path, 'utf-8').toString();
+  return fs.readFileSync(path, 'utf-8');
 }
 
 //score string

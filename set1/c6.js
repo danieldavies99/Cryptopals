@@ -1,6 +1,6 @@
-let utility = require("../Utility");
-let input = utility.loadString("./set1/c6InputCustom.txt");
-let inputBuffer = Buffer.from(input, "base64");
+const utility = require("../Utility");
+const input = utility.loadString("./set1/c6InputCustom.txt");
+const inputBuffer = Buffer.from(input, "base64");
 
 // Write a function to compute the edit distance/Hamming distance between two strings.
 // The Hamming distance is just the number of differing bits.
