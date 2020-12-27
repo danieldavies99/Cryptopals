@@ -1,6 +1,6 @@
 let utility = require("../Utility");
 
-var inputs = utility.loadArray("./set1/c4Inputs.txt");
+var inputs = utility.loadArray("./set1/inputs/c4Inputs.txt");
 
 var results = [];
 

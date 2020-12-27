@@ -2,7 +2,7 @@ const aesjs = require('aes-js');
 const utility = require("../Utility");
 
 let key = Buffer.from("YELLOW SUBMARINE");
-let input = utility.loadString("./set1/c7Inputs.txt")
+let input = utility.loadString("./set1/inputs/c7Inputs.txt")
 
 let inputBuffer = Buffer.from(input, "base64");
 

@@ -1,7 +1,7 @@
 const aesjs = require("aes-js");
 const utility = require("../Utility");
 
-let input = utility.loadArray("./set1/c8Inputs.txt");
+let input = utility.loadArray("./set1/inputs/c8Inputs.txt");
 
 function splitInto16ByteBlocks(input) {
   let resultBlocks = [];

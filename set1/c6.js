@@ -1,5 +1,5 @@
 const utility = require("../Utility");
-const input = utility.loadString("./set1/c6InputCustom.txt");
+const input = utility.loadString("./set1/inputs/c6InputCustom.txt");
 const inputBuffer = Buffer.from(input, "base64");
 
 // Write a function to compute the edit distance/Hamming distance between two strings.
