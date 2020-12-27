@@ -19,7 +19,7 @@ function compressArray(original) {
 	return original.reduce((a,b)=>a.set(JSON.stringify(b),a.get(JSON.stringify(b))+1||0),new Map)
 };
 
-
+let ciphertextDuplicates = [];
 input.forEach((ciphertext, i) => {
   let inputBuffer = Buffer.from(ciphertext, "hex");
   const result = compressArray(splitInto16ByteBlocks(inputBuffer))
@@ -29,8 +29,16 @@ input.forEach((ciphertext, i) => {
       totalDupes += value;
     }
   }
-  console.log("line : " + (i + 1) + " duplicates : " + totalDupes );
+  ciphertextDuplicates.push({
+    line: i + 1,
+    duplicates: totalDupes,
+  })
+  //console.log("line : " + (i + 1) + " duplicates : " + totalDupes );
 });
 
+ciphertextDuplicates = ciphertextDuplicates.sort(function (a, b) {
+  return b.duplicates - a.duplicates;
+});
 
+console.log("ECB encrypted cyphertext line : " + ciphertextDuplicates[0].line)
 // solution line 133, as it has the most duplicate 16 byte blocks.
