@@ -137,7 +137,6 @@ function decryptRepeatingKeyXor(key, message) {
 // You could proceed perhaps with the smallest 2-3 KEYSIZE values.
 // Or take 4 KEYSIZE blocks instead of 2 and average the distances
 let editDistancesForKeySize = getTopThreeKeySizes(inputBuffer, 40);
-console.log(editDistancesForKeySize);
 
 // Now that you probably know the KEYSIZE:
 // break the ciphertext into blocks of KEYSIZE length.
