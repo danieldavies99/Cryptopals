@@ -42,6 +42,7 @@ function getNormalizedEditDistanceForKeySize(keySize, input) {
       secondBytes.push(input[i + keySize]);
     }
 
+    //stop when max number of keysize length blocks have been checked
     if (iterations * keySize * 2 > input.length - keySize * 2) {
       break;
     }
@@ -101,12 +102,12 @@ function transposeBlocks(blocks) {
 
 function getSingleByteXORKey(input) {
   scores = [];
-  var inputBuffer = Buffer.from(input, "hex");
+  input = Buffer.from(input, "hex"); //this might not be necessary
 
   for (var i = 0; i < 128; i++) {
     let results = [];
-    for (var j = 0; j < inputBuffer.length; j++) {
-      results.push(inputBuffer[j] ^ i);
+    for (var j = 0; j < input.length; j++) {
+      results.push(input[j] ^ i);
     }
     scores.push({
       character: String.fromCharCode(i),
@@ -121,11 +122,11 @@ function getSingleByteXORKey(input) {
 
 function decryptRepeatingKeyXor(key, message) {
   results = [];
-  var inputBuffer = Buffer.from(message, "hex");
+  var input = Buffer.from(message, "hex");
 
-  for (i = 0; i < inputBuffer.length; i++) {
+  for (i = 0; i < input.length; i++) {
     var index = i % key.length;
-    results.push(inputBuffer[i] ^ key.charCodeAt(index));
+    results.push(input[i] ^ key.charCodeAt(index));
   }
   return Buffer.from(results);
 }
@@ -155,6 +156,6 @@ let key = transposedBlocks.reduce((accumulator, currentValue) => {
   return (accumulator += getSingleByteXORKey(currentValue).character);
 }, "");
 
-console.log("key: " + key + "\n");
+console.log("\nkey: " + key + "\n");
 console.log("message:");
 console.log(decryptRepeatingKeyXor(key, inputBuffer).toString());
