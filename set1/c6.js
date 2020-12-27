@@ -70,20 +70,19 @@ function getTopThreeKeySizes(input, maxKeySizeLength) {
   }
   return editDistancesForKeySize.sort(function (a, b) {
     return a.editDistance - b.editDistance;
-  });
+  }).slice(0,3);
 }
 
 function getKeySizeLengthBlocks(input, keySize) {
-  let blocks = [];
+  let keySizeLengthBlocks = [];
   for (let i = 0; i < input.length / keySize; i++) {
-    let block = [];
-
+    let newblock = [];
     for (let j = 0; j < keySize; j++) {
-      block.push(input[i * keySize + j]);
+      newblock.push(input[i * keySize + j]);
     }
-    blocks.push(block);
+    keySizeLengthBlocks.push(newblock);
   }
-  return blocks;
+  return keySizeLengthBlocks;
 }
 
 function transposeBlocks(blocks) {
@@ -138,6 +137,7 @@ function decryptRepeatingKeyXor(key, message) {
 // You could proceed perhaps with the smallest 2-3 KEYSIZE values.
 // Or take 4 KEYSIZE blocks instead of 2 and average the distances
 let editDistancesForKeySize = getTopThreeKeySizes(inputBuffer, 40);
+console.log(editDistancesForKeySize);
 
 // Now that you probably know the KEYSIZE:
 // break the ciphertext into blocks of KEYSIZE length.
