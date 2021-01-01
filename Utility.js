@@ -7,7 +7,7 @@ function loadArray(path) {
 }
 
 function loadString(path) {
-  return fs.readFileSync(path, 'utf-8');
+  return fs.readFileSync(path, "utf-8");
 }
 
 //score string
@@ -105,4 +105,22 @@ function scoreString(string, penaltyValue) {
   return score;
 }
 
-module.exports = { scoreString, loadArray, loadString };
+function ceilToNearest(n, multiple) {
+  return Math.ceil(n / multiple) * multiple;
+}
+function calcPaddingSize(input, blockSize) {
+  return ceilToNearest(input.length, blockSize) - input.length === 0
+    ? blockSize
+    : ceilToNearest(input.length, blockSize) - input.length;
+}
+function PKCS7pad(input, blockSize) {
+  let paddingSize = calcPaddingSize(input, blockSize);
+  let paddingBytes = [];
+  for (let i = 0; i < paddingSize; i++) {
+    paddingBytes.push(paddingSize);
+  }
+  let paddingBuffer = Buffer.from(paddingBytes);
+  return Buffer.concat([input, paddingBuffer]);
+}
+
+module.exports = { scoreString, loadArray, loadString, PKCS7pad };
