@@ -126,7 +126,7 @@ function PKCS7pad(input, blockSize) {
 
 function XOR(b1, b2) {
   if (b1.length != b2.length) {
-    console.log("Buffer lenghts aren't equal in XOR");
+    console.log("Buffer lengths aren't equal in XOR");
     return -1;
   }
   let XORBytes = [];
