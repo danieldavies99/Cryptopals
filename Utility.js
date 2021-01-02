@@ -1,4 +1,5 @@
 //loading a text file into an array
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
 var fs = require("fs");
 
 function loadArray(path) {
@@ -123,4 +124,16 @@ function PKCS7pad(input, blockSize) {
   return Buffer.concat([input, paddingBuffer]);
 }
 
-module.exports = { scoreString, loadArray, loadString, PKCS7pad };
+function XOR(b1, b2) {
+  if (b1.length != b2.length) {
+    console.log("Buffer lenghts aren't equal in XOR");
+    return -1;
+  }
+  let XORBytes = [];
+  for (let i = 0; i < b1.length; i++) {
+    XORBytes.push(b1[i] ^ b2[i]);
+  }
+  return Buffer.from(XORBytes);
+}
+
+module.exports = { scoreString, loadArray, loadString, PKCS7pad, XOR };

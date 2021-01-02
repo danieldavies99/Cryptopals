@@ -22,7 +22,7 @@ let decryptedText = Buffer.from(decryptedBytes).toString();
 console.log("decrypted: \n" + decryptedText);
 */
 function CBCEncrypt(input, key, IV) {
-  
+    
 }
 
 function CBCDecrypt(input, key, IV) {
@@ -33,3 +33,5 @@ const input = Buffer.from(utility.loadArray("./set2/inputs/c10Inputs.txt"), "bas
 const key = Buffer.from("YELLOW SUBMARINE");
 const IV = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 CBCDecrypt(input, key, IV);
+
+const plaintextInput
