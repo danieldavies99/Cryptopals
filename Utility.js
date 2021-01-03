@@ -1,5 +1,5 @@
 //loading a text file into an array
-const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
+const aesjs = require("aes-js");
 var fs = require("fs");
 
 function loadArray(path) {
@@ -136,4 +136,71 @@ function XOR(b1, b2) {
   return Buffer.from(XORBytes);
 }
 
-module.exports = { scoreString, loadArray, loadString, PKCS7pad, XOR };
+function ECBEncrypt(input, key) {
+  let aesEcb = new aesjs.ModeOfOperation.ecb(key);
+  return Buffer.from(aesEcb.encrypt(input));
+}
+
+function ECBDecrypt(input, key) {
+  let aesEcb = new aesjs.ModeOfOperation.ecb(key);
+  return Buffer.from(aesEcb.decrypt(input));
+}
+
+function encryptCBCBlock(plainTextBlock, previousCipherTextBlock, key) {
+  const aesEcb = new aesjs.ModeOfOperation.ecb(key);
+  return Buffer.from(
+    aesEcb.encrypt(XOR(plainTextBlock, previousCipherTextBlock))
+  );
+}
+function CBCEncrypt(input, IV, key) {
+  const keySize = key.length;
+  const paddedInput = PKCS7pad(input, keySize);
+
+  //first block
+  let result = encryptCBCBlock(input.slice(0, keySize), IV, key);
+
+  for (let i = 1; i < paddedInput.length / keySize; i++) {
+    let newBlock = encryptCBCBlock(
+      paddedInput.slice(i * keySize, i * keySize + keySize),
+      result.slice((i - 1) * keySize, i * keySize),
+      key
+    );
+    result = Buffer.concat([result, newBlock]);
+  }
+  return result;
+}
+
+function decryptCBCBlock(currentCipherTextBlock, previousCipherTextBlock, key) {
+  const aesEcb = new aesjs.ModeOfOperation.ecb(key);
+  let decryptedCurrentBlock = aesEcb.decrypt(currentCipherTextBlock);
+  return XOR(decryptedCurrentBlock, previousCipherTextBlock);
+}
+function CBCDecrypt(input, IV, key) {
+  const keySize = key.length;
+  const aesEcb = new aesjs.ModeOfOperation.ecb(key);
+
+  //first block
+  let results = decryptCBCBlock(input.slice(0, keySize), IV, key);
+
+  for (let i = 1; i < input.length / keySize; i++) {
+    let newBlock = decryptCBCBlock(
+      input.slice(i * keySize, i * keySize + keySize),
+      input.slice((i - 1) * keySize, i * keySize),
+      key
+    );
+    results = Buffer.concat([results, newBlock]);
+  }
+  return results;
+}
+
+module.exports = {
+  scoreString,
+  loadArray,
+  loadString,
+  PKCS7pad,
+  XOR,
+  ECBEncrypt,
+  ECBDecrypt,
+  CBCEncrypt,
+  CBCDecrypt,
+};
