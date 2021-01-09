@@ -24,4 +24,11 @@ function base64translate(input) {
     return result;
 }
 
-console.log(base64translate(`49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d`));
+console.log(base64translate(`
+Sometimes I feel like life is just a game
+And I get the urge to jump in front of a moving train
+But like some kind of sick joke
+You keep me alive, 
+Every time I pass out
+You're there to revive.
+`));
