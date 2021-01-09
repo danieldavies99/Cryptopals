@@ -1,4 +1,3 @@
-const aesjs = require("aes-js");
 const utility = require("../Utility");
 
 function generateRandomBuffer(length) {
